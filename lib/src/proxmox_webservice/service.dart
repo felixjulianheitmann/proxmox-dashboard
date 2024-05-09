@@ -128,7 +128,7 @@ class ProxmoxWebService {
     Log().info("toggling VM: ${isRunning ? "stopping" : "starting"}");
 
     final endpoint =
-        "/api2/json/nodes/${node.node}/qemu/${vm.vmid}/status/${isRunning ? "stop" : "start"}";
+        "/api2/json/nodes/${node.node}/qemu/${vm.vmid}/status/${isRunning ? "shutdown" : "start"}";
 
     final resp = await _doPost(endpoint, {}, debug: true);
     if (resp == null) return false;
