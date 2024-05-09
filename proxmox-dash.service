@@ -1,0 +1,13 @@
+[Unit]
+Description=My Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/flutter-pi -r 180 --release /opt/proxmox-dash
+
+Restart=on-failure
+RestartSec=5s
+Environment="HOME=/root"
+
+[Install]
+WantedBy=default.target
