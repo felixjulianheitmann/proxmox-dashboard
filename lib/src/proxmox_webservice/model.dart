@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 typedef ProxmoxNodeMap = Map<ProxmoxNode, List<ProxmoxVm>>;
 
 class ProxmoxNode {
@@ -117,41 +115,5 @@ class ProxmoxVm {
       disk: json['disk'],
       maxmem: json['maxmem'],
     );
-    return switch (json) {
-      {
-        'status': String status,
-        'vmid': num vmid,
-        'cpus': num? cpus,
-        'mem': num? mem,
-        'name': String? name,
-        'diskwrite': num? diskwrite,
-        'netout': num? netout,
-        'uptime': num? uptime,
-        'cpu': num? cpu,
-        'maxdisk': num? maxdisk,
-        'netin': num? netin,
-        'diskread': num? diskread,
-        'disk': num? disk,
-        'maxmem': num? maxmem,
-      } =>
-        ProxmoxVm(
-          status: status,
-          vmid: vmid,
-          cpus: cpus,
-          mem: mem,
-          name: name,
-          diskwrite: diskwrite,
-          netout: netout,
-          uptime: uptime,
-          cpu: cpu,
-          maxdisk: maxdisk,
-          netin: netin,
-          diskread: diskread,
-          disk: disk,
-          maxmem: maxmem,
-        ),
-      _ => throw FormatException(
-          "failed to parse proxmox node into object: $json"),
-    };
   }
 }

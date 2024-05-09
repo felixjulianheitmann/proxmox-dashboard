@@ -10,7 +10,7 @@ class RunningIndicator extends StatelessWidget {
   final bool isRunning;
 
   @override
-  Widget build(BuildContext ctx) {
+  Widget build(context) {
     return Text(
       isRunning ? "RUNNING" : "STOPPED",
       style: TextStyle(
@@ -22,19 +22,19 @@ class RunningIndicator extends StatelessWidget {
 }
 
 class ProxmoxVmCard extends StatelessWidget {
-  ProxmoxVmCard({
+  const ProxmoxVmCard({
     super.key,
     required this.node,
     required this.vm,
-    required this.pm_service,
+    required this.pmService,
   });
 
   final ProxmoxNode node;
   final ProxmoxVm vm;
-  final ProxmoxWebService pm_service;
+  final ProxmoxWebService pmService;
 
   @override
-  Widget build(_) {
+  Widget build(context) {
     return Card(
       child: Column(
         children: [
@@ -53,7 +53,7 @@ class ProxmoxVmCard extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.power_settings_new),
-                  onPressed: () => pm_service.toggleVm(node, vm),
+                  onPressed: () => pmService.toggleVm(node, vm),
                 ),
               ],
             ),

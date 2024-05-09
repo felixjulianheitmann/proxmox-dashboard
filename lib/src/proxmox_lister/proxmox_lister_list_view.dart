@@ -142,7 +142,7 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
               return ProxmoxVmCard(
                 node: nodeEntry.key,
                 vm: nodeEntry.value[index],
-                pm_service: _service,
+                pmService: _service,
               );
             },
           );

@@ -45,7 +45,7 @@ class ProxmoxWebService {
     return _authenticated;
   }
 
-  Future<Map<String, dynamic>?> _doGet(String endpoint, {debug = false}) async {
+  Future<Map<String, dynamic>?> _doGet(String endpoint) async {
     if (!_authenticated) return null;
     final resp = await http.get(
         Uri.https(
@@ -56,7 +56,6 @@ class ProxmoxWebService {
           "CSRFPreventionToken": _csrfToken as String,
           "Cookie": "PVEAuthCookie=$_ticket"
         });
-    if (debug) print(resp.body);
 
     if (resp.statusCode != 200) return null;
 
@@ -79,7 +78,6 @@ class ProxmoxWebService {
       },
       body: payload,
     );
-    if (debug) print(resp.body);
 
     if (resp.statusCode != 200) return null;
 

@@ -79,7 +79,7 @@ class _IdleTurnOffState extends State<IdleTurnOff> {
   Widget build(BuildContext context) {
     return KeyboardListener(
       focusNode: FocusNode(
-        onKeyEvent: (_1, _2) {
+        onKeyEvent: (a, b) {
           _timer.reset();
           return KeyEventResult.ignored;
         },
