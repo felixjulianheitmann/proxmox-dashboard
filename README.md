@@ -24,3 +24,5 @@ Copy the build over to the pi and start it using:
 ```
 flutter-pi <path-to-flutter-package>
 ```
+
+![screenshot](/Screenshot.gif)
