@@ -1,5 +1,9 @@
 # proxmox-dashboard
 
+<p align="center">
+  <img src="/felixbruns/proxmox-dashboard/raw/branch/main/Screenshot.gif" />
+</p>
+
 A very minimal dashboard to display on my Raspberry Pi using [flutter-pi](https://github.com/ardera/flutter-pi).
 
 ## Building
@@ -24,5 +28,3 @@ Copy the build over to the pi and start it using:
 ```
 flutter-pi <path-to-flutter-package>
 ```
-
-![screenshot](/Screenshot.gif)
