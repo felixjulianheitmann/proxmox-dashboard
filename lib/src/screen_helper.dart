@@ -32,7 +32,11 @@ File blFile() {
 }
 
 Future<void> setBlFile(String content) async {
-  await blFile().writeAsString(content);
+  try {
+    await blFile().writeAsString(content);
+  } catch (e) {
+    Log().error("Cannot set backlight: ${e.toString()}");
+  }
 }
 
 Widget screenActivator() {
