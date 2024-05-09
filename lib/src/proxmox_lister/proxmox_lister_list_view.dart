@@ -36,7 +36,7 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
     nodes = Future<ProxmoxNodeMap>.delayed(Duration.zero, () => getVms());
 
     Timer.periodic(const Duration(seconds: 3), (_) {
-      syncVMs();
+      syncVMs((_) {});
     });
   }
 
@@ -60,23 +60,33 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
     return map;
   }
 
-  void syncVMs() async {
+  void syncVMs(Function(Exception) onExcept) async {
     nodes = getVms();
-    await nodes;
+    try {
+      await nodes;
+    } on Exception catch (e) {
+      onExcept(e);
+    }
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     // infinite touch container to turn screen back on
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: appbar(context),
-          body: bodyBuilder(context),
-        ),
-        screenActivator(),
-      ],
+    return IdleTurnOff(
+      timeout: const Duration(seconds: 60),
+      onExpire: () async {
+        await turnOffScreen();
+      },
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: appbar(context),
+            body: bodyBuilder(context),
+          ),
+          screenActivator(),
+        ],
+      ),
     );
   }
 
@@ -93,7 +103,16 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
         IconButton(
           icon: const Icon(Icons.sync),
           onPressed: () {
-            syncVMs();
+            syncVMs((e) {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext ctx) {
+                    return AlertDialog(
+                      title: const Text("Error"),
+                      content: Text(e.toString()),
+                    );
+                  });
+            });
           },
         ),
         IconButton(

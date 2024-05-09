@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:async/async.dart';
 
 const _off = "1";
 const _on = "0";
@@ -47,4 +48,46 @@ Widget screenActivator() {
       ),
     ),
   );
+}
+
+class IdleTurnOff extends StatefulWidget {
+  const IdleTurnOff({
+    super.key,
+    required this.child,
+    required this.timeout,
+    required this.onExpire,
+  });
+
+  final Widget child;
+  final Duration timeout;
+  final Function() onExpire;
+
+  @override
+  State<IdleTurnOff> createState() => _IdleTurnOffState();
+}
+
+class _IdleTurnOffState extends State<IdleTurnOff> {
+  late RestartableTimer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = RestartableTimer(widget.timeout, widget.onExpire);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyboardListener(
+      focusNode: FocusNode(
+        onKeyEvent: (_1, _2) {
+          _timer.reset();
+          return KeyEventResult.ignored;
+        },
+      ),
+      child: Listener(
+        child: widget.child,
+        onPointerDown: (_) => _timer.reset(),
+      ),
+    );
+  }
 }
