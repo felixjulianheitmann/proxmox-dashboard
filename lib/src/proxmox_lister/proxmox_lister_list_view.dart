@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pi_dashboard/src/proxmox_webservice/model.dart';
 import 'package:pi_dashboard/src/proxmox_webservice/service.dart';
+import 'package:pi_dashboard/src/screen_helper.dart';
 import 'package:pi_dashboard/src/settings/settings_controller.dart';
 import 'package:pi_dashboard/src/settings/settings_service.dart';
 import '../settings/settings_view.dart';
@@ -72,6 +73,12 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
         appBar: AppBar(
           title: const Text("Proxmox VMs"),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.nightlight),
+              onPressed: () {
+                toggleScreen();
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.sync),
               onPressed: () {
