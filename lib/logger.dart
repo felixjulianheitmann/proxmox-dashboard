@@ -8,15 +8,21 @@ class Log {
   static Logger _logger = Logger();
 
   factory Log() {
+    try {
     final logFile = File("/var/log/proxmox-dash/proxmox-dash.log");
-    if (!logFile.existsSync()) {
-      logFile.createSync(recursive: true);
-    }
+      if (!logFile.existsSync()) {
+        logFile.createSync(recursive: true);
+      }
+    
 
     _logger = Logger(
       output: FileOutput(file: logFile),
       level: Level.info,
     );
+    } catch (_) {
+      // No logging available
+      _logger = Logger();
+    }
     return _instance;
   }
 
