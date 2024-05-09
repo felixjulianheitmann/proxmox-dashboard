@@ -31,11 +31,6 @@ class SettingsService {
   }
   Future<void> setKeyStr(String key, String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final res = await prefs.setString(key, value);
-    if(res) {
-      print("successfully saved");
-      print(key);
-      print(value);
-    }
+    await prefs.setString(key, value);
   }
 }

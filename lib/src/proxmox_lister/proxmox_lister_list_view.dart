@@ -1,17 +1,70 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:pi_dashboard/src/proxmox_webservice/model.dart';
+import 'package:pi_dashboard/src/proxmox_webservice/service.dart';
+import 'package:pi_dashboard/src/settings/settings_controller.dart';
+import 'package:pi_dashboard/src/settings/settings_service.dart';
 import '../settings/settings_view.dart';
 import 'vm_card.dart';
-import 'proxomx_vm.dart';
 
-class ProxmoxListerView extends StatelessWidget {
-  ProxmoxListerView({
+class ProxmoxListerView extends StatefulWidget {
+  const ProxmoxListerView({
     super.key,
-    this.vms = const [ProxmoxVM(id: 1, name: "template")],
+    required this.settings,
   });
 
   static const routeName = '/proxmox_lister';
 
-  List<ProxmoxVM> vms;
+  final SettingsController settings;
+
+  @override
+  State<ProxmoxListerView> createState() => _ProxmoxListerState();
+}
+
+class _ProxmoxListerState extends State<ProxmoxListerView> {
+  late Future<ProxmoxNodeMap> nodes;
+  late SettingsController settings;
+
+  late ProxmoxWebService _service;
+
+  @override
+  void initState() {
+    super.initState();
+    settings = super.widget.settings;
+
+    nodes = Future<ProxmoxNodeMap>.delayed(Duration.zero, () => getVms());
+
+    Timer.periodic(const Duration(seconds: 3), (_) {
+      syncVMs();
+    });
+  }
+
+  Future<ProxmoxNodeMap> getVms() async {
+    await settings.loadSettings();
+    _service = ProxmoxWebService(
+      hostname: settings.hostname,
+      username: settings.username,
+      password: settings.password,
+    );
+    final success = await _service.authenticate();
+    if (!success) {
+      return Future.error(Exception("couldn't authenticate against Proxmox"));
+    }
+
+    ProxmoxNodeMap map = {};
+    final nodes = await _service.listNodes();
+    for (final node in nodes) {
+      map[node] = await _service.listVms(node.node);
+    }
+    return map;
+  }
+
+  void syncVMs() async {
+    nodes = getVms();
+    await nodes;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,23 +75,47 @@ class ProxmoxListerView extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.sync),
               onPressed: () {
-                Navigator.restorablePushNamed(context, SettingsView.routeName);
+                syncVMs();
               },
             ),
             IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.restorablePushNamed(context, SettingsView.routeName);
+              },
             ),
           ],
         ),
-        body: ListView.builder(
-          restorationId: "proxmoxVMLister",
-          itemCount: vms.length,
-          itemBuilder: (BuildContext ctx, int index) {
-            final vm = vms[index];
+        body: FutureBuilder<ProxmoxNodeMap>(
+          future: nodes,
+          builder: (ctx, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.requireData.isEmpty) {
+                return const Center(child: Icon(Icons.block));
+              }
 
-            return ProxmoxVmCard(vm: vm);
+              final nodeEntry = snapshot.requireData.entries.first;
+              return ListView.builder(
+                restorationId: "proxmoxVMLister",
+                itemCount: nodeEntry.value.length,
+                itemBuilder: (BuildContext ctx, int index) {
+                  return ProxmoxVmCard(
+                    node: nodeEntry.key,
+                    vm: nodeEntry.value[index],
+                    pm_service: _service,
+                  );
+                },
+              );
+            } else if (snapshot.hasError) {
+              return AlertDialog(
+                title: const Text("error"),
+                content: Text(snapshot.error.toString()),
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
           },
         ));
   }
+  
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pi_dashboard/src/proxmox_lister/proxomx_vm.dart';
+import 'package:pi_dashboard/src/proxmox_webservice/model.dart';
+import 'package:pi_dashboard/src/proxmox_webservice/service.dart';
 
 class RunningIndicator extends StatelessWidget {
   const RunningIndicator({
@@ -23,10 +24,14 @@ class RunningIndicator extends StatelessWidget {
 class ProxmoxVmCard extends StatelessWidget {
   ProxmoxVmCard({
     super.key,
-    this.vm = const ProxmoxVM(),
+    required this.node,
+    required this.vm,
+    required this.pm_service,
   });
 
-  final ProxmoxVM vm;
+  final ProxmoxNode node;
+  final ProxmoxVm vm;
+  final ProxmoxWebService pm_service;
 
   @override
   Widget build(_) {
@@ -37,16 +42,19 @@ class ProxmoxVmCard extends StatelessWidget {
             leading: const Icon(Icons.dns),
             title: Row(
               children: [
-                Text(vm.name),
+              Text(vm.name ?? ""),
                 const Spacer(),
-                RunningIndicator(isRunning: vm.isRunning),
+              RunningIndicator(isRunning: vm.status == "running"),
               ]
             ),
             subtitle: Row(
               children: [
-                Text("ID: ${vm.id.toString()}"),
+                Text("ID: ${vm.vmid.toString()}"),
                 const Spacer(),
-                TextButton(onPressed: () => {}, child: const Icon(Icons.power_settings_new)),
+                IconButton(
+                  icon: const Icon(Icons.power_settings_new),
+                  onPressed: () => pm_service.toggleVm(node, vm),
+                ),
               ],
             ),
           ),

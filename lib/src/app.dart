@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pi_dashboard/src/proxmox_lister/proxmox_lister_list_view.dart';
 
 import 'settings/settings_controller.dart';
@@ -51,9 +50,9 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case ProxmoxListerView.routeName:
-                    return ProxmoxListerView();
+                    return ProxmoxListerView(settings: settingsController);
                   default:
-                    return ProxmoxListerView();
+                    return ProxmoxListerView(settings: settingsController);
                 }
               },
             );
