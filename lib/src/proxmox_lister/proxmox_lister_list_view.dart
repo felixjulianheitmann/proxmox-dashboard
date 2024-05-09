@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pi_dashboard/logger.dart';
 import 'package:pi_dashboard/src/proxmox_webservice/model.dart';
 import 'package:pi_dashboard/src/proxmox_webservice/service.dart';
 import 'package:pi_dashboard/src/screen_helper.dart';
@@ -51,11 +52,13 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
     if (!success) {
       return Future.error(Exception("couldn't authenticate against Proxmox"));
     }
+    Log().info("Server auth successful");
 
     ProxmoxNodeMap map = {};
     final nodes = await _service.listNodes();
     for (final node in nodes) {
       map[node] = await _service.listVms(node.node);
+      Log().debug("received node [${node.node}] with ${map[node]?.length} vms");
     }
     return map;
   }
@@ -77,6 +80,7 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
       timeout: const Duration(seconds: 60),
       onExpire: () async {
         await turnOffScreen();
+        Log().info("No input for 60 seconds. Screen turned off");
       },
       child: Stack(
         children: [

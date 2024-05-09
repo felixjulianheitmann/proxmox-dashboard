@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:async/async.dart';
+import 'package:pi_dashboard/logger.dart';
 
 const _off = "1";
 const _on = "0";
@@ -8,6 +9,7 @@ const _on = "0";
 bool _screenStatus = true;
 
 Future<void> toggleScreen() async {
+  Log().info("Manually toggling screen light");
   if (_screenStatus) {
     turnOffScreen();
   } else {
@@ -43,6 +45,7 @@ Widget screenActivator() {
       child: Material(
         color: Colors.black,
         child: InkWell(onTap: () async {
+          Log().info("Touch received: turning screen back on");
           await turnOncreen();
         }),
       ),

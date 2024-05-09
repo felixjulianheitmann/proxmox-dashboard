@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pi_dashboard/logger.dart';
 
 import 'settings_service.dart';
 
@@ -38,14 +39,17 @@ class SettingsController with ChangeNotifier {
   Future<void> setHostname(String newHostname) async {
     _hostname = newHostname;
     await _setKey("hostname", hostname);
+    Log().debug("Hostname update: $hostname");
   }
   Future<void> setUsername(String newUsername) async {
     _username = newUsername;
     await _setKey("username", username);
+    Log().debug("username update: $username");
   }
   Future<void> setPassword(String newPassword) async {
     _password = newPassword;
     await _setKey("password", password);
+    Log().debug("password update");
   }
   /// Update and persist the ThemeMode based on the user's selection.
   Future<void> updateThemeMode(ThemeMode? newThemeMode) async {

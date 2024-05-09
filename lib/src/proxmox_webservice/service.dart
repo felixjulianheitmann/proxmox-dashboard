@@ -1,6 +1,7 @@
 import 'dart:convert' as convert;
 
 import 'package:http/http.dart' as http;
+import 'package:pi_dashboard/logger.dart';
 import 'model.dart';
 
 class ProxmoxWebService {
@@ -40,6 +41,8 @@ class ProxmoxWebService {
       _authenticated = true;
     } else {
       _authenticated = false;
+      Log().info(
+          "Authentication returned error code ${resp.statusCode}: ${resp.body}");
     }
 
     return _authenticated;
@@ -57,7 +60,10 @@ class ProxmoxWebService {
           "Cookie": "PVEAuthCookie=$_ticket"
         });
 
-    if (resp.statusCode != 200) return null;
+    if (resp.statusCode != 200) {
+      Log().info("Get returned error code ${resp.statusCode}: ${resp.body}");
+      return null;
+    }
 
     return convert.jsonDecode(resp.body) as Map<String, dynamic>;
   }
@@ -79,12 +85,16 @@ class ProxmoxWebService {
       body: payload,
     );
 
-    if (resp.statusCode != 200) return null;
+    if (resp.statusCode != 200) {
+      Log().info("Post returned error code ${resp.statusCode}: ${resp.body}");
+      return null;
+    }
 
     return convert.jsonDecode(resp.body) as Map<String, dynamic>;
   }
 
   Future<List<ProxmoxNode>> listNodes() async {
+    Log().debug("Querying nodes");
     List<ProxmoxNode> nodes = [];
 
     final resp = await _doGet("/api2/json/nodes");
@@ -98,6 +108,7 @@ class ProxmoxWebService {
   }
 
   Future<List<ProxmoxVm>> listVms(String node) async {
+    Log().debug("Querying vms");
     List<ProxmoxVm> vms = [];
     final resp = await _doGet("/api2/json/nodes/$node/qemu");
     if (resp == null) return [];
@@ -113,8 +124,11 @@ class ProxmoxWebService {
   Future<bool> toggleVm(ProxmoxNode node, ProxmoxVm vm) async {
     if (!_authenticated) return false;
 
+    final isRunning = vm.status == "running";
+    Log().info("toggling VM: ${isRunning ? "stopping" : "starting"}");
+
     final endpoint =
-        "/api2/json/nodes/${node.node}/qemu/${vm.vmid}/status/${vm.status == "running" ? "stop" : "start"}";
+        "/api2/json/nodes/${node.node}/qemu/${vm.vmid}/status/${isRunning ? "stop" : "start"}";
 
     final resp = await _doPost(endpoint, {}, debug: true);
     if (resp == null) return false;
