@@ -8,6 +8,7 @@ import 'package:pi_dashboard/src/screen_helper.dart';
 import 'package:pi_dashboard/src/settings/settings_controller.dart';
 import '../settings/settings_view.dart';
 import 'vm_card.dart';
+import 'dart:io' show Platform;
 
 class ProxmoxListerView extends StatefulWidget {
   const ProxmoxListerView({
@@ -76,34 +77,34 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
   @override
   Widget build(BuildContext context) {
     // infinite touch container to turn screen back on
-    return IdleTurnOff(
-      timeout: const Duration(seconds: 60),
-      onExpire: () async {
-        await turnOffScreen();
-        Log().info("No input for 60 seconds. Screen turned off");
-      },
-      child: Stack(
-        children: [
-          Scaffold(
-            appBar: appbar(context),
-            body: bodyBuilder(context),
-          ),
-          screenActivator(),
-        ],
-      ),
+    var widget = Stack(
+      children: [
+        Scaffold(
+          appBar: appbar(context),
+          body: bodyBuilder(context),
+        ),
+      ],
     );
+
+    if (Platform.isLinux) {
+      widget.children.add(screenActivator());
+      return IdleTurnOff(
+        timeout: const Duration(seconds: 60),
+        onExpire: () async {
+          await turnOffScreen();
+          Log().info("No input for 60 seconds. Screen turned off");
+        },
+        child: widget,
+      );
+    } else {
+      return widget;
+    }
   }
 
   PreferredSizeWidget? appbar(BuildContext context) {
-    return AppBar(
+    var app = AppBar(
       title: const Text("Proxmox VMs"),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.nightlight),
-          onPressed: () {
-            toggleScreen();
-          },
-        ),
         IconButton(
           icon: const Icon(Icons.sync),
           onPressed: () {
@@ -127,6 +128,20 @@ class _ProxmoxListerState extends State<ProxmoxListerView> {
         ),
       ],
     );
+
+    if (Platform.isLinux) {
+      app.actions?.insert(
+        0,
+        IconButton(
+          icon: const Icon(Icons.nightlight),
+          onPressed: () {
+            toggleScreen();
+          },
+        ),
+      );
+    }
+
+    return app;
   }
 
   Widget bodyBuilder(BuildContext context) {
